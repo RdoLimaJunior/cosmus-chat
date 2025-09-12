@@ -35,7 +35,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           <p className="whitespace-pre-wrap">{message.text}</p>
           
           {message.challenge && (
-            <div className="mt-4 p-3 border-l-4 border-[var(--color-primary)] bg-[var(--color-surface)] rounded-r-lg">
+            <div id={`challenge-block-${message.id}`} className="mt-4 p-3 border-l-4 border-[var(--color-primary)] bg-[var(--color-surface)] rounded-r-lg">
               <h4 className="font-bold text-[var(--color-primary)] flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />

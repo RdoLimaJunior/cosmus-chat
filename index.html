@@ -337,6 +337,34 @@
           background-size: 50vw 100vh;
           animation: move-twink-back 80s linear infinite;
       }
+
+      /* Estilos do Tutorial */
+      .tutorial-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        transition: opacity 0.3s ease-in-out;
+      }
+
+      .tutorial-highlight {
+        position: absolute;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 15px 5px var(--color-accent);
+        border: 2px solid var(--color-accent);
+        border-radius: 4px;
+        z-index: 1000;
+        pointer-events: none; /* Permite clicar através do destaque se necessário (mas não queremos isso) */
+        transition: all 0.3s ease-in-out;
+      }
+      
+      .tutorial-popover {
+        position: absolute;
+        z-index: 1001;
+        width: 300px;
+        max-width: 90vw;
+        padding: 1rem;
+        animation: zoomInFade 0.3s ease-out;
+      }
     </style>
   <script type="importmap">
 {

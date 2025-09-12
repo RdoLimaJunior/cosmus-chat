@@ -4,6 +4,7 @@ import { sendMessageToAI, getInitialMessage } from '../services/geminiService';
 import { fetchNasaMedia, fetchRandomNasaMedia } from '../services/nasaService';
 import { useUser } from '../contexts/UserContext';
 import { useChat } from '../contexts/ChatContext';
+import { useTutorial } from '../contexts/TutorialContext';
 import Message from './Message';
 import ChatInput from './ChatInput';
 import LoadingSpinner from './LoadingSpinner';
@@ -14,6 +15,7 @@ const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { userName, completeMission } = useUser();
   const { chatHistory, saveChatHistory } = useChat();
+  const { startTutorial, hasCompletedTutorial } = useTutorial();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -92,6 +94,11 @@ const ChatWindow: React.FC = () => {
 
       if (missionCompleted) {
         completeMission(missionCompleted);
+        // Dispara o tutorial de desafios se for a primeira vez
+        if (challenge && !hasCompletedTutorial('challenges')) {
+            // Pequeno atraso para garantir que a mensagem seja renderizada antes do tutorial começar
+            setTimeout(() => startTutorial('challenges'), 500);
+        }
       }
 
       const aiMessage: ChatMessage = {
@@ -103,6 +110,12 @@ const ChatWindow: React.FC = () => {
         challenge: challenge,
       };
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
+
+      // Dispara o tutorial socrático se for a primeira vez que sugestões aparecem
+      if (suggestions && suggestions.length > 0 && !hasCompletedTutorial('socratic')) {
+        // Pequeno atraso para garantir que a mensagem seja renderizada antes do tutorial começar
+        setTimeout(() => startTutorial('socratic'), 500);
+      }
 
       if (imageQuery) {
         const media = await fetchNasaMedia(imageQuery);
@@ -169,7 +182,7 @@ const ChatWindow: React.FC = () => {
 
   return (
     <div className="w-full h-full flex flex-col spaceship-panel overflow-hidden animate-chat-window p-0">
-      <div className="flex-grow p-6 overflow-y-auto space-y-6">
+      <div id="chat-history" className="flex-grow p-6 overflow-y-auto space-y-6">
         {messages.map((msg) => (
           <Message key={msg.id} message={msg} />
         ))}
@@ -185,6 +198,7 @@ const ChatWindow: React.FC = () => {
       <div className="border-t-2 border-[var(--color-border)] p-4 space-y-4">
         <div className="flex justify-center">
             <button
+                id="cosmic-wonder-button"
                 onClick={handleShowMeAnImage}
                 disabled={isLoading}
                 className="spaceship-button flex items-center gap-2 disabled:opacity-50 disabled:cursor-wait"
@@ -198,7 +212,7 @@ const ChatWindow: React.FC = () => {
         </div>
         
         {activeSuggestions.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2">
+          <div id="suggestion-area" className="flex flex-wrap justify-center gap-2">
             {activeSuggestions.map((suggestion) => (
               <button
                 key={suggestion}

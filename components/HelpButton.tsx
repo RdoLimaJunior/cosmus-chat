@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, useId } from 'react';
+import { useTutorial } from '../contexts/TutorialContext';
 
 const HelpButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const tooltipId = useId();
+  const { startTutorial } = useTutorial();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -14,6 +16,11 @@ const HelpButton: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleStartTutorial = (tutorialName: 'socratic' | 'nasa' | 'challenges') => {
+    startTutorial(tutorialName);
+    setIsOpen(false);
+  };
 
   return (
     <div ref={dropdownRef} className="relative w-12 flex justify-start">
@@ -44,13 +51,24 @@ const HelpButton: React.FC = () => {
           role="dialog"
           aria-labelledby="help-title"
         >
-          <h3 id="help-title" className="font-bold text-lg text-[var(--color-accent)] mb-2">Como conversar com Cosmus</h3>
-          <p className="text-sm mb-3">
-            Cosmus é um guia que usa o <strong>Método Socrático</strong>. Em vez de dar respostas diretas, ele faz perguntas para te ajudar a descobrir o conhecimento por conta própria!
-          </p>
-          <p className="text-sm">
-            Use os <strong>botões de sugestão</strong> que aparecem após as respostas dele para explorar os tópicos mais a fundo.
-          </p>
+          <h3 id="help-title" className="font-bold text-lg text-[var(--color-accent)] mb-3">Protocolos de Orientação</h3>
+          <ul className="space-y-2">
+            <li>
+              <button onClick={() => handleStartTutorial('socratic')} className="w-full text-left text-sm hover:text-[var(--color-accent)] transition-colors">
+                - Como Cosmus Ensina
+              </button>
+            </li>
+             <li>
+              <button onClick={() => handleStartTutorial('nasa')} className="w-full text-left text-sm hover:text-[var(--color-accent)] transition-colors">
+                - Revelando Maravilhas Cósmicas
+              </button>
+            </li>
+             <li>
+              <button onClick={() => handleStartTutorial('challenges')} className="w-full text-left text-sm hover:text-[var(--color-accent)] transition-colors">
+                - Missões e Desafios
+              </button>
+            </li>
+          </ul>
         </div>
       )}
     </div>
