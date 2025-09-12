@@ -1,8 +1,8 @@
 import React from 'react';
 import Modal from './Modal';
-import AstronautIcon from './AstronautIcon';
 import { useUser } from '../contexts/UserContext';
 import { useChat } from '../contexts/ChatContext';
+import { useTutorial } from '../contexts/TutorialContext';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -10,8 +10,9 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
-  const { userName, rank, missionsCompleted, lastMission, avatar } = useUser();
+  const { userName, rank, missionsCompleted, lastMission, avatar, signOut } = useUser();
   const { clearChatHistory } = useChat();
+  const { clearCompletedTutorials } = useTutorial();
 
   const handleClearHistory = () => {
     if (window.confirm("Tem certeza de que deseja apagar todo o histórico de conversas? Esta ação não pode ser desfeita.")) {
@@ -19,6 +20,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
       onClose(); // Fecha o modal após a ação
     }
   };
+
+  const handleSignOut = () => {
+    if (window.confirm("Tem certeza de que deseja sair? Isso irá apagar seu perfil e histórico para começar de novo.")) {
+        signOut();
+        clearChatHistory();
+        clearCompletedTutorials();
+        // Não é necessário chamar onClose(), pois a mudança de estado do usuário irá desmontar este componente
+    }
+  };
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -34,11 +45,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
           &times;
         </button>
 
-        <div className="w-24 h-24 mx-auto mb-4 bg-[var(--color-muted-surface)] flex items-center justify-center border-4 border-[var(--color-accent)] hexagon-clip overflow-hidden">
+        <div className="w-24 h-24 mx-auto mb-4 bg-[var(--color-muted-surface)] flex items-center justify-center rounded-full overflow-hidden">
            {avatar ? (
              <img src={avatar} alt="Avatar do explorador" className="w-full h-full object-cover" />
            ) : (
-             <AstronautIcon className="h-16 w-16 text-[var(--color-accent)]" />
+             <img src="/cosmus2.webp" alt="Avatar padrão de Cosmus" className="w-full h-full object-cover" />
            )}
         </div>
         
@@ -63,13 +74,22 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
 
         <div className="mt-6 border-t border-[var(--color-border)] pt-4">
             <h3 className="font-bold text-lg text-left text-[var(--color-text-muted)] mb-3">Ações</h3>
-            <button
-                onClick={handleClearHistory}
-                className="w-full spaceship-button"
-                aria-label="Limpar histórico de conversas"
-            >
-                Limpar Histórico de Conversas
-            </button>
+            <div className="space-y-2">
+                <button
+                    onClick={handleClearHistory}
+                    className="w-full spaceship-button"
+                    aria-label="Limpar histórico de conversas"
+                >
+                    Limpar Histórico de Conversas
+                </button>
+                 <button
+                    onClick={handleSignOut}
+                    className="w-full spaceship-button"
+                    aria-label="Sair e reiniciar o aplicativo"
+                >
+                    Sair e Reiniciar
+                </button>
+            </div>
         </div>
 
       </div>

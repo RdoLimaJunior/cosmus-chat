@@ -18,6 +18,7 @@ interface UserContextType {
   setUserName: (name: string) => void;
   setAvatar: (avatarDataUrl: string) => void; // Adiciona a função para definir o avatar
   completeMission: (missionName: string) => void;
+  signOut: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -29,6 +30,8 @@ const getRank = (missions: number): string => {
   return 'Cadete Estelar';
 };
 
+const initialUserData: UserData = { name: null, missionsCompleted: 0, lastMission: null, avatar: null };
+
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [userData, setUserData] = useState<UserData>(() => {
     try {
@@ -38,17 +41,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Remove a propriedade chatHistory de dados legados para manter o armazenamento limpo
         delete parsedData.chatHistory;
         return {
-            name: null,
-            missionsCompleted: 0,
-            lastMission: null,
-            avatar: null,
-            ...parsedData // Mescla com dados salvos, garantindo que novos campos (como avatar) existam
+            ...initialUserData, // Garante que novos campos existam
+            ...parsedData // Mescla com dados salvos
         };
       }
     } catch (error) {
       console.warn("Não foi possível acessar o localStorage:", error);
     }
-    return { name: null, missionsCompleted: 0, lastMission: null, avatar: null };
+    return initialUserData;
   });
 
   const [lastCompletedMission, setLastCompletedMission] = useState<{ name: string; timestamp: number } | null>(null);
@@ -80,6 +80,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
     setLastCompletedMission(newMission); // Dispara o efeito para o toast
   }, [userData, saveUserData]);
+  
+  const signOut = useCallback(() => {
+    try {
+      localStorage.removeItem('cosmus-userData');
+      setUserData(initialUserData);
+    } catch (error) {
+      console.warn("Não foi possível limpar os dados do usuário do localStorage:", error);
+      setUserData(initialUserData); // Ainda redefine o estado para a sessão atual
+    }
+  }, []);
 
   const rank = useMemo(() => getRank(userData.missionsCompleted), [userData.missionsCompleted]);
 
@@ -93,12 +103,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUserName,
     setAvatar,
     completeMission,
+    signOut,
   };
 
   return (
     <UserContext.Provider value={value}>
       {children}
-    {/* FIX: Corrected closing tag typo from </User-Provider> to match the opening <UserContext.Provider>. */}
     </UserContext.Provider>
   );
 };

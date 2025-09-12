@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useId } from 'react';
 import { useTutorial } from '../contexts/TutorialContext';
-import AstronautIcon from './AstronautIcon';
 import { useUser } from '../contexts/UserContext';
 
 interface SideNavProps {
@@ -50,7 +49,7 @@ const SideNav: React.FC<SideNavProps> = ({ isProfileOpen, onOpenProfile, onOpenS
           {avatar ? (
             <img src={avatar} alt="Avatar do usuário" className="w-full h-full object-cover" />
           ) : (
-            <AstronautIcon className="h-6 w-6" />
+            <img src="/cosmus2.webp" alt="Avatar padrão de Cosmus" className="w-full h-full object-cover" />
           )}
         </button>
         <div

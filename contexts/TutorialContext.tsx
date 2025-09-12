@@ -22,6 +22,7 @@ interface TutorialContextType {
   goToNextStep: () => void;
   goToPrevStep: () => void;
   hasCompletedTutorial: (name: TutorialName) => boolean;
+  clearCompletedTutorials: () => void;
 }
 
 const tutorials: Record<TutorialName, Tutorial> = {
@@ -108,6 +109,14 @@ export const TutorialProvider: React.FC<{ children: ReactNode }> = ({ children }
       return getCompletedTutorials().includes(name);
   }, [getCompletedTutorials]);
 
+  const clearCompletedTutorials = useCallback(() => {
+    try {
+        localStorage.removeItem(COMPLETED_TUTORIALS_KEY);
+    } catch (error) {
+        console.warn('Não foi possível limpar os tutoriais concluídos do localStorage', error);
+    }
+  }, []);
+
 
   const startTutorial = (name: TutorialName) => {
     setActiveTutorial(tutorials[name]);
@@ -152,6 +161,7 @@ export const TutorialProvider: React.FC<{ children: ReactNode }> = ({ children }
     goToNextStep,
     goToPrevStep,
     hasCompletedTutorial,
+    clearCompletedTutorials,
   };
 
   return <TutorialContext.Provider value={value}>{children}</TutorialContext.Provider>;
