@@ -114,7 +114,7 @@ const getImageUrlsFromCollection = async (collectionUrl: string): Promise<NasaIm
 
 /**
  * Fetches the collection manifest for a NASA item and extracts a video URL.
- * It prioritizes smaller file sizes for better performance.
+ * It prioritizes smaller file sizes for better performance and correctly resolves relative URLs.
  * @param item - A single item from the NASA API search results (must be a video type).
  * @returns A secure (https) URL to an mp4 video, or null if none are found.
  */
@@ -129,16 +129,34 @@ const getVideoUrlFromNasaItem = async (item: NasaItem): Promise<string | null> =
             return null;
         }
 
-        const videoLinks: string[] = await response.json();
+        const manifestPaths: string[] = await response.json();
         
-        const mobileVideo = videoLinks.find(link => link.endsWith('.mp4') && link.includes('~mobile'));
-        if (mobileVideo) return mobileVideo.replace(/^http:/, 'https');
+        // Função para resolver caminhos relativos contra o URL da coleção.
+        const resolveUrl = (path: string): string | null => {
+            try {
+                const url = new URL(path, collectionUrl);
+                url.protocol = 'https:'; // Garante HTTPS
+                return url.href;
+            } catch (e) {
+                console.warn(`Não foi possível construir a URL para o caminho "${path}" com a base "${collectionUrl}"`, e);
+                return null;
+            }
+        };
 
-        const smallVideo = videoLinks.find(link => link.endsWith('.mp4') && link.includes('~small'));
-        if (smallVideo) return smallVideo.replace(/^http:/, 'https');
+        // Encontra o caminho e o resolve para um URL completo.
+        const findAndResolve = (predicate: (path: string) => boolean): string | null => {
+            const foundPath = manifestPaths.find(predicate);
+            return foundPath ? resolveUrl(foundPath) : null;
+        };
+
+        const mobileVideoUrl = findAndResolve(path => path.endsWith('.mp4') && path.includes('~mobile'));
+        if (mobileVideoUrl) return mobileVideoUrl;
+
+        const smallVideoUrl = findAndResolve(path => path.endsWith('.mp4') && path.includes('~small'));
+        if (smallVideoUrl) return smallVideoUrl;
         
-        const anyMp4 = videoLinks.find(link => link.endsWith('.mp4'));
-        if (anyMp4) return anyMp4.replace(/^http:/, 'https');
+        const anyMp4Url = findAndResolve(path => path.endsWith('.mp4'));
+        if (anyMp4Url) return anyMp4Url;
 
         return null;
 

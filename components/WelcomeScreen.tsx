@@ -4,7 +4,6 @@ import { useUser } from '../contexts/UserContext';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import type { ChatMedia } from '../types';
 import LoadingSpinner from './LoadingSpinner';
-import AstronautIcon from './AstronautIcon';
 import CameraCaptureModal from './CameraCaptureModal';
 
 interface WelcomeScreenProps {
@@ -141,7 +140,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
                   {avatar ? (
                       <img src={avatar} alt="Avatar do explorador" className="w-full h-full object-cover" />
                   ) : (
-                      <AstronautIcon className="h-20 w-20" />
+                      <img src="/cosmus2.webp" alt="Avatar padrão de Cosmus" className="w-full h-full object-cover" />
                   )}
                 </div>
                 <h1 className="text-3xl font-bold text-[var(--color-accent)] glow-text">Identifique-se, Explorador!</h1>
