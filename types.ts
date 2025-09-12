@@ -13,4 +13,5 @@ export interface ChatMessage {
   suggestions?: string[];
   media?: ChatMedia;
   source?: string;
+  challenge?: { name: string; description: string; };
 }

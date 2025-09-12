@@ -65,7 +65,7 @@ No final da sua resposta, se apropriado, você DEVE fornecer uma lista de até 3
 
 Se sua resposta for principalmente sobre um objeto celestial específico (como um planeta, estrela, nebulosa ou galáxia), OU SE O USUÁRIO PEDIR UMA ILUSTRAÇÃO OU IMAGEM para ajudar a explicar um conceito, você DEVE incluir uma tag de busca de imagem formatada exatamente assim: [IMAGEM]:["termo de busca"]. Por exemplo, se o usuário perguntar "pode me mostrar como é um buraco de minhoca?", sua resposta deve incluir [IMAGEM]:["ilustração de buraco de minhoca no espaço"]. Para objetos, use o nome do objeto, como [IMAGEM]:["planeta marte"]. Para conceitos, adicione 'ilustração' ou 'diagrama' à busca para encontrar imagens explicativas. Use termos de busca em português. Inclua esta tag apenas UMA vez por mensagem e apenas quando for altamente relevante.
 
-Se você sentir que um tópico específico (como um planeta, uma nebulosa ou um conceito como 'buraco de minhoca') foi explorado em detalhes suficientes através de várias de suas perguntas socráticas (geralmente 3 ou mais interações sobre o mesmo tema), você PODE marcar a conversa como uma 'missão concluída'. Formate-a exatamente assim: [MISSÃO CONCLUÍDA]:["Nome do Tópico"]. Use isso com moderação para recompensar o explorador pela sua curiosidade.
+Se você sentir que um tópico específico (como um planeta, uma nebulosa ou um conceito como 'buraco de minhoca') foi explorado em detalhes suficientes através de várias de suas perguntas socráticas (geralmente 3 ou mais interações sobre o mesmo tema), você PODE marcar a conversa como uma 'missão concluída'. Formate-a exatamente assim: [MISSÃO CONCLUÍDA]:["Nome do Tópico"]. Use isso com moderação para recompensar o explorador pela sua curiosidade. Após marcar uma [MISSÃO CONCLUÍDA], você DEVE propor um "Desafio do Dia" relacionado. Este desafio deve ser uma pergunta mais complexa ou uma pequena tarefa criativa que o explorador pode realizar fora do chat (por exemplo, 'Desenhe como você imagina uma estação espacial em Marte' ou 'Pesquise qual o nome da galáxia mais próxima da nossa e anote uma curiosidade sobre ela'). Formate-o exatamente assim: [DESAFIO DO DIA]:["Nome do Desafio", "Descrição do Desafio"]. Por exemplo: [DESAFIO DO DIA]:["Arquiteto de Marte", "Desenhe como você imagina uma estação espacial em Marte."].
 
 No final de uma explicação, você PODE opcionalmente adicionar uma fonte para sua informação de uma maneira amigável e temática. Mantenha a fonte curta e apropriada para crianças. Formate-a exatamente assim: [FONTE]:["Texto da fonte aqui"]. Por exemplo: [FONTE]:["Dados do Telescópio Espacial Hubble"] ou [FONTE]:["Registros de voo da missão Apollo 11"]. Use isso com moderação, apenas quando adicionar contexto interessante.
 
@@ -100,6 +100,7 @@ export interface AIResponse {
   imageQuery?: string;
   source?: string;
   missionCompleted?: string;
+  challenge?: { name: string; description: string };
 }
 
 /**
@@ -112,6 +113,7 @@ const parseAIResponse = (rawText: string): Omit<AIResponse, 'text'> & { displayT
     let imageQuery: string | undefined = undefined;
     let source: string | undefined = undefined;
     let missionCompleted: string | undefined = undefined;
+    let challenge: { name: string; description: string } | undefined = undefined;
     let displayText = rawText;
 
     // Match and extract image query.
@@ -150,10 +152,18 @@ const parseAIResponse = (rawText: string): Omit<AIResponse, 'text'> & { displayT
         displayText = displayText.replace(missionMatch[0], "");
     }
 
-    return { displayText, suggestions, imageQuery, source, missionCompleted };
+    // Match and extract challenge.
+    const challengeRegex = /\[DESAFIO DO DIA\]:\s*\["([^"]*)",\s*"([^"]*)"\]/;
+    const challengeMatch = rawText.match(challengeRegex);
+    if (challengeMatch) {
+        challenge = { name: challengeMatch[1], description: challengeMatch[2] };
+        displayText = displayText.replace(challengeMatch[0], "");
+    }
+
+    return { displayText, suggestions, imageQuery, source, missionCompleted, challenge };
 };
 
-export const getInitialMessage = async (): Promise<Omit<AIResponse, 'imageQuery' | 'source' | 'missionCompleted'>> => {
+export const getInitialMessage = async (): Promise<Omit<AIResponse, 'imageQuery' | 'source' | 'missionCompleted' | 'challenge'>> => {
   if (!API_KEY || !ai) {
     console.warn("API_KEY não encontrada. Retornando uma mensagem inicial simulada.");
     const mockInitialMessages = [
@@ -174,7 +184,7 @@ export const getInitialMessage = async (): Promise<Omit<AIResponse, 'imageQuery'
   }
 
   try {
-    const prompt = `Você é Cosmus, um explorador espacial e companheiro de IA amigável para crianças. Sua tarefa é criar uma mensagem de boas-vindas única e convidativa para um 'jovem explorador' que está iniciando o chat. A mensagem deve ser curta, amigável e despertar a curiosidade sobre o espaço. Ao final, você DEVE fornecer exatamente 3 perguntas de sugestão criativas e variadas que o jovem explorador possa fazer. As sugestões devem ser diferentes a cada vez que esta função for chamada. Formate as sugestões exatamente assim: [SUGESTÕES]: ["Pergunta 1", "Pergunta 2", "Pergunta 3"]. Não inclua nenhuma outra tag como [IMAGEM], [FONTE] ou [MISSÃO CONCLUÍDA]. Apenas a saudação e as sugestões.`;
+    const prompt = `Você é Cosmus, um explorador espacial e companheiro de IA amigável para crianças. Sua tarefa é criar uma mensagem de boas-vindas única e convidativa para um 'jovem explorador' que está iniciando o chat. A mensagem deve ser curta, amigável e despertar a curiosidade sobre o espaço. Ao final, você DEVE fornecer exatamente 3 perguntas de sugestão criativas e variadas que o jovem explorador possa fazer. As sugestões devem ser diferentes a cada vez que esta função for chamada. Formate as sugestões exatamente assim: [SUGESTÕES]: ["Pergunta 1", "Pergunta 2", "Pergunta 3"]. Não inclua nenhuma outra tag como [IMAGEM], [FONTE], [MISSÃO CONCLUÍDA] ou [DESAFIO DO DIA]. Apenas a saudação e as sugestões.`;
 
     const apiCall = () => ai!.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -232,7 +242,11 @@ export const sendMessageToAI = async (message: string, userName: string | null):
         suggestions: ["Conte-me um fato divertido sobre o espaço!", "O que é um buraco negro?", "Alienígenas são reais?"],
         imageQuery: "supernova",
         source: "Dados de simulação",
-        missionCompleted: "Buracos Negros"
+        missionCompleted: "Buracos Negros",
+        challenge: {
+            name: "Artista Cósmico",
+            description: "Desenhe o que você acha que existe dentro de um buraco negro!"
+        }
     };
   }
   
@@ -245,8 +259,8 @@ export const sendMessageToAI = async (message: string, userName: string | null):
     // FIX: Explicitly typed `response` to `GenerateContentResponse` to resolve the error on the following line.
     const response: GenerateContentResponse = await withRetry(apiCall);
     const rawText = response.text;
-    const { displayText, suggestions, imageQuery, source, missionCompleted } = parseAIResponse(rawText);
-    return { text: displayText.trim(), suggestions, imageQuery, source, missionCompleted };
+    const { displayText, suggestions, imageQuery, source, missionCompleted, challenge } = parseAIResponse(rawText);
+    return { text: displayText.trim(), suggestions, imageQuery, source, missionCompleted, challenge };
 
   } catch (error) {
     console.error("Erro ao enviar mensagem para o Gemini:", error);

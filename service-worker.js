@@ -4,7 +4,7 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/cosmus-icon.svg',
+  '/cosmus.webp',
   '/icon-192.png',
   '/icon-512.png'
   // Outros ativos (como o JS/CSS principal) serão cacheados dinamicamente na primeira solicitação.

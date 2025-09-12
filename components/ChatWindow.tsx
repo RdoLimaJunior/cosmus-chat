@@ -87,7 +87,7 @@ const ChatWindow: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { text: aiResponseText, suggestions, imageQuery, source, missionCompleted } = await sendMessageToAI(inputText, userName);
+      const { text: aiResponseText, suggestions, imageQuery, source, missionCompleted, challenge } = await sendMessageToAI(inputText, userName);
       const aiMessageId = (Date.now() + 1).toString();
 
       if (missionCompleted) {
@@ -100,6 +100,7 @@ const ChatWindow: React.FC = () => {
         sender: 'ai',
         suggestions: suggestions,
         source: source,
+        challenge: challenge,
       };
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
 
@@ -157,7 +158,7 @@ const ChatWindow: React.FC = () => {
         };
         setMessages((prevMessages) => [...prevMessages, errorMessage]);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
