@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cosmus: Companheiro IA</title>
+
+    <!-- PWA Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0a0a19" />
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+      :root, body[data-theme='cosmic-blue'] {
+        --color-background: rgb(10 10 25);
+        --color-surface: rgb(20 25 50 / 0.8);
+        --color-muted-surface: rgb(30 40 70);
+        --color-border: rgb(50 150 255 / 0.2);
+        --color-text-base: rgb(220 230 255);
+        --color-text-muted: rgb(150 160 190);
+        --color-primary: rgb(0 190 255);
+        --color-primary-hover: rgb(50 210 255);
+        --color-accent: rgb(0 255 255);
+        --color-accent-dark: rgb(0 200 200);
+        --glow-shadow: 0 0 5px var(--color-accent), 0 0 10px var(--color-accent), 0 0 15px var(--color-accent-dark);
+      }
+
+      body[data-theme='deep-nebula'] {
+        --color-background: rgb(5 0 20);
+        --color-surface: rgb(30 10 50 / 0.8);
+        --color-muted-surface: rgb(50 20 80);
+        --color-border: rgb(180 80 255 / 0.2);
+        --color-text-base: rgb(230 220 255);
+        --color-text-muted: rgb(170 160 190);
+        --color-primary: rgb(200 100 255);
+        --color-primary-hover: rgb(220 120 255);
+        --color-accent: rgb(255 80 220);
+        --color-accent-dark: rgb(220 50 190);
+        --glow-shadow: 0 0 5px var(--color-accent), 0 0 10px var(--color-accent), 0 0 15px var(--color-accent-dark);
+      }
+
+      body[data-theme='aurora-borealis'] {
+        --color-background: rgb(0 20 20);
+        --color-surface: rgb(10 40 40 / 0.8);
+        --color-muted-surface: rgb(20 60 60);
+        --color-border: rgb(10 220 150 / 0.2);
+        --color-text-base: rgb(220 255 250);
+        --color-text-muted: rgb(150 190 180);
+        --color-primary: rgb(0 255 180);
+        --color-primary-hover: rgb(80 255 200);
+        --color-accent: rgb(255 100 220);
+        --color-accent-dark: rgb(220 70 190);
+        --glow-shadow: 0 0 5px var(--color-primary), 0 0 10px var(--color-primary), 0 0 15px var(--color-primary);
+      }
+
+      body[data-theme='stardust'] {
+        --color-background: rgb(25 25 30);
+        --color-surface: rgb(50 50 60 / 0.8);
+        --color-muted-surface: rgb(70 70 80);
+        --color-border: rgb(255 230 180 / 0.2);
+        --color-text-base: rgb(240 240 245);
+        --color-text-muted: rgb(180 180 190);
+        --color-primary: rgb(255 215 0);
+        --color-primary-hover: rgb(255 225 50);
+        --color-accent: rgb(200 220 255);
+        --color-accent-dark: rgb(180 200 235);
+        --glow-shadow: 0 0 5px var(--color-primary), 0 0 10px var(--color-primary), 0 0 15px var(--color-primary);
+      }
+
+      body {
+        font-family: 'Share Tech Mono', monospace;
+        background-color: var(--color-background);
+        background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        background-position: 0 0;
+        transition: background-color 0.5s ease, color 0.5s ease;
+      }
+      
+      .glow-text {
+        text-shadow: 0 0 4px var(--color-accent), 0 0 6px var(--color-accent);
+      }
+      
+      .spaceship-panel {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        backdrop-filter: blur(10px);
+        position: relative;
+        transition: background-color 0.5s ease, border-color 0.5s ease;
+      }
+      
+      .spaceship-panel::before,
+      .spaceship-panel::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-color: var(--color-accent);
+        border-style: solid;
+        pointer-events: none;
+        transition: border-color 0.5s ease;
+      }
+      .spaceship-panel::before {
+        top: -1px;
+        left: -1px;
+        border-width: 2px 0 0 2px;
+      }
+      .spaceship-panel::after {
+        bottom: -1px;
+        right: -1px;
+        border-width: 0 2px 2px 0;
+      }
+
+      .hexagon-clip { 
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); 
+      }
+      
+      .spaceship-button {
+        background-color: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-accent);
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease-in-out;
+        text-transform: uppercase;
+      }
+      .spaceship-button:hover:not(:disabled), .spaceship-button:focus:not(:disabled) {
+        background-color: var(--color-accent);
+        color: var(--color-background);
+        box-shadow: var(--glow-shadow);
+        border-color: var(--color-accent);
+      }
+      
+      /* Animações de mensagem de chat */
+      @keyframes slideInFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0) scale(1);
+        }
+      }
+      .animate-ai-message {
+        animation: slideInFromLeft 0.5s ease-out forwards;
+      }
+      
+      @keyframes slideInFromRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0) scale(1);
+        }
+      }
+      .animate-user-message {
+        animation: slideInFromRight 0.5s ease-out forwards;
+      }
+
+
+      /* Animação para a janela de chat */
+      @keyframes zoomInFade {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .animate-chat-window {
+        animation: zoomInFade 0.6s ease-out forwards;
+      }
+
+      /* Animação para as sugestões */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-suggestion {
+        animation: fadeInUp 0.4s ease-out;
+        animation-fill-mode: backwards; /* Aplica o estado 'from' antes da animação começar */
+      }
+      
+      /* Animações para o modal de imagem */
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-modal-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+
+      @keyframes zoomInModal {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      .animate-modal-zoom-in {
+        animation: zoomInModal 0.3s ease-out forwards;
+      }
+      
+      /* Animação para o toast de instalação do PWA */
+      @keyframes slideInUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+      }
+      .animate-toast-in {
+          animation: slideInUpFade 0.5s ease-out forwards;
+      }
+
+      /* Animação para o toast de Missão Concluída */
+      @keyframes slideInDownFadeOut {
+        0% {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        10%, 90% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+      }
+      .animate-mission-toast {
+        animation: slideInDownFadeOut 5s ease-in-out forwards;
+      }
+
+      /* Animação para o botão de instalação pronto */
+      @keyframes pulse-glow {
+        0%, 100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px var(--color-accent));
+        }
+        50% {
+          transform: scale(1.1);
+          filter: drop-shadow(0 0 5px var(--color-accent));
+        }
+      }
+      .animate-install-ready svg {
+        animation: pulse-glow 2s infinite ease-in-out;
+      }
+      
+      /* Animação para o botão de microfone */
+      @keyframes pulse-mic {
+        0%, 100% {
+          box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(0, 255, 255, 0);
+        }
+      }
+      .mic-button.is-listening {
+        background-color: var(--color-accent);
+        color: var(--color-background);
+        animation: pulse-mic 1.5s infinite;
+      }
+
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-accent);
+        border-radius: 0;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-primary-hover);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <div id="modal-root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

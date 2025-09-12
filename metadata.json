@@ -1,0 +1,8 @@
+{
+  "name": "Cosmus: Companheiro IA",
+  "description": "Um companheiro de IA interativo e amigável, Cosmus, projetado para guiar e inspirar jovens exploradores em sua jornada de aprendizado através de conversas envolventes.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
