@@ -4,11 +4,12 @@ import AstronautIcon from './AstronautIcon';
 import { useUser } from '../contexts/UserContext';
 
 interface SideNavProps {
+  isProfileOpen: boolean;
   onOpenProfile: () => void;
   onOpenSettings: () => void;
 }
 
-const SideNav: React.FC<SideNavProps> = ({ onOpenProfile, onOpenSettings }) => {
+const SideNav: React.FC<SideNavProps> = ({ isProfileOpen, onOpenProfile, onOpenSettings }) => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const helpDropdownRef = useRef<HTMLDivElement>(null);
   const { startTutorial } = useTutorial();
@@ -42,7 +43,7 @@ const SideNav: React.FC<SideNavProps> = ({ onOpenProfile, onOpenSettings }) => {
       <div className="relative group">
         <button
           onClick={onOpenProfile}
-          className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-[var(--color-muted-surface)] transition-colors duration-200 overflow-hidden"
+          className={`w-12 h-12 flex items-center justify-center rounded-full hover:bg-[var(--color-muted-surface)] transition-all duration-200 overflow-hidden ${isProfileOpen ? 'animate-avatar-pulse' : ''}`}
           aria-label="Ver perfil e histórico"
           aria-describedby={profileTooltipId}
         >

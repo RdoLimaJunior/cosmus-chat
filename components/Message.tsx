@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { ChatMessage } from '../types';
-import CosmusIcon from './CosmusIcon';
 import MediaModal from './ImageModal';
 
 interface MessageProps {
@@ -19,10 +18,11 @@ const Message: React.FC<MessageProps> = ({ message }) => {
       {/* O div externo agora lida apenas com o layout flexbox (alinhamento à esquerda/direita). */}
       <div className={`flex items-start gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
         {!isUser && (
-          // O ícone tem sua própria animação para uma entrada consistente.
-          <div className="flex-shrink-0 w-10 h-10 bg-[var(--color-muted-surface)] flex items-center justify-center border-2 border-[var(--color-accent)] hexagon-clip animate-ai-message">
-            <CosmusIcon />
-          </div>
+           <img 
+            src="/cosmus.webp" 
+            alt="Avatar de Cosmus" 
+            className="flex-shrink-0 w-14 h-14 rounded-full animate-ai-message object-cover" 
+          />
         )}
         {/* Este é o 'div aninhado' que contém todo o conteúdo da mensagem e agora gerencia sua própria animação. */}
         <div

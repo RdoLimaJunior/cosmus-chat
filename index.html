@@ -274,6 +274,20 @@
         animation: pulse-mic 1.5s infinite;
       }
 
+      /* Animação para o avatar do usuário quando o perfil está aberto */
+      @keyframes avatar-pulse {
+        0%, 100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0px color-mix(in srgb, var(--color-accent) 50%, transparent);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 0 10px 2px color-mix(in srgb, var(--color-accent) 70%, transparent);
+        }
+      }
+      .animate-avatar-pulse {
+        animation: avatar-pulse 2s infinite ease-in-out;
+      }
 
       /* Scrollbar */
       ::-webkit-scrollbar {

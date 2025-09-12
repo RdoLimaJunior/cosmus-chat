@@ -137,11 +137,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
 
         <div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
             <div className="w-full max-w-md lg:max-w-lg spaceship-panel p-8 flex flex-col items-center gap-4 animate-chat-window">
-                <div className="w-20 h-20 bg-[var(--color-muted-surface)] flex items-center justify-center border-4 border-[var(--color-accent)] mb-2 hexagon-clip overflow-hidden">
+                <div className="w-28 h-28 bg-[var(--color-muted-surface)] flex items-center justify-center mb-2 rounded-full overflow-hidden">
                   {avatar ? (
                       <img src={avatar} alt="Avatar do explorador" className="w-full h-full object-cover" />
                   ) : (
-                      <AstronautIcon className="h-12 w-12" />
+                      <AstronautIcon className="h-20 w-20" />
                   )}
                 </div>
                 <h1 className="text-3xl font-bold text-[var(--color-accent)] glow-text">Identifique-se, Explorador!</h1>

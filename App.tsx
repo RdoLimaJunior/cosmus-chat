@@ -45,6 +45,7 @@ const CosmusApp: React.FC = () => {
       {userName ? (
         <>
           <SideNav 
+            isProfileOpen={isProfileOpen}
             onOpenProfile={() => setIsProfileOpen(true)}
             onOpenSettings={() => setIsSettingsOpen(true)}
           />
