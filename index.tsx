@@ -17,7 +17,10 @@ root.render(
 // Registra o Service Worker para habilitar a funcionalidade PWA/offline
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    // Usa um caminho absoluto simples e define o escopo explicitamente como '/'.
+    // Isso é mais robusto do que construir a URL e resolve ambiguidades
+    // em ambientes de hospedagem complexos que poderiam causar o erro de 'origem'.
+    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
       .then(registration => {
         console.log('ServiceWorker registrado com sucesso com o escopo: ', registration.scope);
       })

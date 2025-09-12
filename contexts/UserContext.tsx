@@ -17,6 +17,7 @@ interface UserContextType {
   lastCompletedMission: { name: string; timestamp: number } | null;
   setUserName: (name: string) => void;
   setAvatar: (avatarDataUrl: string) => void; // Adiciona a função para definir o avatar
+  removeAvatar: () => void; // Adiciona a função para remover o avatar
   completeMission: (missionName: string) => void;
   signOut: () => void;
 }
@@ -53,37 +54,45 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [lastCompletedMission, setLastCompletedMission] = useState<{ name: string; timestamp: number } | null>(null);
 
-  const saveUserData = useCallback((data: UserData) => {
-    try {
-      localStorage.setItem('cosmus-userData', JSON.stringify(data));
-      setUserData(data);
-    } catch (error) {
-      console.warn("Não foi possível salvar os dados do usuário no localStorage:", error);
-      setUserData(data); // Ainda define o estado para a sessão atual
-    }
+  // Helper para atualizar o estado e o localStorage de forma segura
+  const updateUserData = useCallback((updater: (prev: UserData) => UserData) => {
+    setUserData(prevData => {
+      const newData = updater(prevData);
+      try {
+        localStorage.setItem('cosmus-userData', JSON.stringify(newData));
+      } catch (error) {
+        console.warn("Não foi possível salvar os dados do usuário no localStorage:", error);
+      }
+      return newData;
+    });
   }, []);
 
   const setUserName = useCallback((name: string) => {
-    saveUserData({ ...userData, name });
-  }, [userData, saveUserData]);
+    updateUserData(prevData => ({ ...prevData, name }));
+  }, [updateUserData]);
   
   const setAvatar = useCallback((avatarDataUrl: string) => {
-    saveUserData({ ...userData, avatar: avatarDataUrl });
-  }, [userData, saveUserData]);
+    updateUserData(prevData => ({ ...prevData, avatar: avatarDataUrl }));
+  }, [updateUserData]);
+
+  const removeAvatar = useCallback(() => {
+    updateUserData(prevData => ({ ...prevData, avatar: null }));
+  }, [updateUserData]);
 
   const completeMission = useCallback((missionName: string) => {
     const newMission = { name: missionName, timestamp: Date.now() };
-    saveUserData({
-      ...userData,
-      missionsCompleted: userData.missionsCompleted + 1,
+    updateUserData(prevData => ({
+      ...prevData,
+      missionsCompleted: prevData.missionsCompleted + 1,
       lastMission: newMission,
-    });
+    }));
     setLastCompletedMission(newMission); // Dispara o efeito para o toast
-  }, [userData, saveUserData]);
+  }, [updateUserData]);
   
   const signOut = useCallback(() => {
     try {
       localStorage.removeItem('cosmus-userData');
+      // Não use `updateUserData` aqui, pois queremos uma redefinição completa
       setUserData(initialUserData);
     } catch (error) {
       console.warn("Não foi possível limpar os dados do usuário do localStorage:", error);
@@ -102,6 +111,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     lastCompletedMission,
     setUserName,
     setAvatar,
+    removeAvatar,
     completeMission,
     signOut,
   };

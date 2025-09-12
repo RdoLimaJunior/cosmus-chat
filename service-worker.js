@@ -1,13 +1,16 @@
 const CACHE_NAME = 'cosmus-pwa-cache-v1';
 // Adiciona os arquivos principais que compõem o "app shell" ao cache.
+// CRÍTICO: '/index.tsx' foi adicionado para garantir que a lógica principal do app funcione offline.
+// CRÍTICO: '/cosmus2.webp' foi adicionado pois é usado como avatar padrão.
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/index.tsx', // Garante que o script principal seja cacheado
   '/cosmus.webp',
+  '/cosmus2.webp', // Garante que o avatar padrão seja cacheado
   '/icon-192.png',
   '/icon-512.png'
-  // Outros ativos (como o JS/CSS principal) serão cacheados dinamicamente na primeira solicitação.
 ];
 
 // Evento de Instalação: abre o cache e adiciona os arquivos principais.

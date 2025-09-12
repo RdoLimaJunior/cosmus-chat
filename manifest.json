@@ -2,7 +2,7 @@
   "name": "Cosmus: Companheiro IA",
   "short_name": "Cosmus",
   "description": "Um companheiro de IA interativo e amigável, Cosmus, projetado para guiar e inspirar jovens exploradores em sua jornada de aprendizado através de conversas envolventes.",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a19",
   "theme_color": "#0a0a19",
@@ -10,7 +10,8 @@
     {
       "src": "/cosmus.webp",
       "sizes": "192x192",
-      "type": "image/webp"
+      "type": "image/webp",
+      "purpose": "any"
     },
     {
       "src": "/icon-192.png",

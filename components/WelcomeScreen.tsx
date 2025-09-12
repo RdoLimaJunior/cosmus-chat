@@ -18,7 +18,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
   const [explorerName, setExplorerName] = useState('');
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   
-  const { avatar, setAvatar } = useUser();
+  const { avatar, setAvatar, removeAvatar } = useUser();
   const { isListening, transcript, startListening, isSupported } = useSpeechRecognition();
 
   useEffect(() => {
@@ -136,7 +136,17 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
 
         <div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
             <div className="w-full max-w-md lg:max-w-lg spaceship-panel p-8 flex flex-col items-center gap-4 animate-chat-window">
-                <div className="w-28 h-28 bg-[var(--color-muted-surface)] flex items-center justify-center mb-2 rounded-full overflow-hidden">
+                <div className="relative w-28 h-28 bg-[var(--color-muted-surface)] flex items-center justify-center mb-2 rounded-full overflow-hidden">
+                  {avatar && (
+                    <button
+                      type="button"
+                      onClick={removeAvatar}
+                      className="absolute top-0 right-0 w-6 h-6 bg-red-600/80 text-white rounded-full flex items-center justify-center text-sm font-bold hover:bg-red-500 transition-colors z-10"
+                      aria-label="Remover foto"
+                    >
+                      &times;
+                    </button>
+                  )}
                   {avatar ? (
                       <img src={avatar} alt="Avatar do explorador" className="w-full h-full object-cover" />
                   ) : (
