@@ -1,23 +1,29 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 
+// Nova estrutura para uma missão
+interface Mission {
+  name: string;
+  timestamp: number;
+}
+
 // Estrutura para os dados do usuário, para ser salva no localStorage
 interface UserData {
   name: string | null;
-  missionsCompleted: number;
-  lastMission: { name: string; timestamp: number } | null;
-  avatar: string | null; // Adiciona o campo de avatar
+  missionHistory: Mission[];
+  avatar: string | null;
 }
 
 interface UserContextType {
   userName: string | null;
-  avatar: string | null; // Adiciona avatar ao tipo de contexto
+  avatar: string | null;
   missionsCompleted: number;
   rank: string;
-  lastMission: { name: string; timestamp: number } | null;
-  lastCompletedMission: { name: string; timestamp: number } | null;
+  lastMission: Mission | null;
+  lastCompletedMission: Mission | null; // Para o toast
+  missionHistory: Mission[]; // Expor o histórico completo
   setUserName: (name: string) => void;
-  setAvatar: (avatarDataUrl: string) => void; // Adiciona a função para definir o avatar
-  removeAvatar: () => void; // Adiciona a função para remover o avatar
+  setAvatar: (avatarDataUrl: string) => void;
+  removeAvatar: () => void;
   completeMission: (missionName: string) => void;
   signOut: () => void;
 }
@@ -31,7 +37,7 @@ const getRank = (missions: number): string => {
   return 'Cadete Estelar';
 };
 
-const initialUserData: UserData = { name: null, missionsCompleted: 0, lastMission: null, avatar: null };
+const initialUserData: UserData = { name: null, missionHistory: [], avatar: null };
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [userData, setUserData] = useState<UserData>(() => {
@@ -39,11 +45,25 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const savedData = localStorage.getItem('cosmus-userData');
       if (savedData) {
         const parsedData = JSON.parse(savedData);
-        // Remove a propriedade chatHistory de dados legados para manter o armazenamento limpo
+        
+        // Migração simples de dados legados para a nova estrutura de histórico
+        if (typeof parsedData.missionsCompleted === 'number' && !parsedData.missionHistory) {
+            const newHistory: Mission[] = [];
+            if (parsedData.lastMission) {
+                newHistory.push(parsedData.lastMission);
+            }
+            // Não podemos recuperar o histórico completo, mas o último é preservado.
+            parsedData.missionHistory = newHistory;
+        }
+
+        // Remove campos antigos
+        delete parsedData.missionsCompleted;
+        delete parsedData.lastMission;
         delete parsedData.chatHistory;
+
         return {
-            ...initialUserData, // Garante que novos campos existam
-            ...parsedData // Mescla com dados salvos
+            ...initialUserData,
+            ...parsedData
         };
       }
     } catch (error) {
@@ -52,9 +72,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return initialUserData;
   });
 
-  const [lastCompletedMission, setLastCompletedMission] = useState<{ name: string; timestamp: number } | null>(null);
+  const [lastCompletedMission, setLastCompletedMission] = useState<Mission | null>(null);
 
-  // Helper para atualizar o estado e o localStorage de forma segura
   const updateUserData = useCallback((updater: (prev: UserData) => UserData) => {
     setUserData(prevData => {
       const newData = updater(prevData);
@@ -80,35 +99,37 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [updateUserData]);
 
   const completeMission = useCallback((missionName: string) => {
-    const newMission = { name: missionName, timestamp: Date.now() };
+    const newMission: Mission = { name: missionName, timestamp: Date.now() };
     updateUserData(prevData => ({
       ...prevData,
-      missionsCompleted: prevData.missionsCompleted + 1,
-      lastMission: newMission,
+      missionHistory: [...prevData.missionHistory, newMission],
     }));
-    setLastCompletedMission(newMission); // Dispara o efeito para o toast
+    setLastCompletedMission(newMission);
   }, [updateUserData]);
   
   const signOut = useCallback(() => {
     try {
       localStorage.removeItem('cosmus-userData');
-      // Não use `updateUserData` aqui, pois queremos uma redefinição completa
       setUserData(initialUserData);
     } catch (error) {
       console.warn("Não foi possível limpar os dados do usuário do localStorage:", error);
-      setUserData(initialUserData); // Ainda redefine o estado para a sessão atual
+      setUserData(initialUserData);
     }
   }, []);
 
-  const rank = useMemo(() => getRank(userData.missionsCompleted), [userData.missionsCompleted]);
+  // Dados derivados do estado
+  const missionsCompleted = userData.missionHistory.length;
+  const lastMission = userData.missionHistory.length > 0 ? userData.missionHistory[userData.missionHistory.length - 1] : null;
+  const rank = useMemo(() => getRank(missionsCompleted), [missionsCompleted]);
 
   const value = {
     userName: userData.name,
     avatar: userData.avatar,
-    missionsCompleted: userData.missionsCompleted,
+    missionsCompleted,
     rank,
-    lastMission: userData.lastMission,
+    lastMission,
     lastCompletedMission,
+    missionHistory: userData.missionHistory,
     setUserName,
     setAvatar,
     removeAvatar,

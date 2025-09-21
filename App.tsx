@@ -7,6 +7,7 @@ import Tutorial from './components/Tutorial';
 import SideNav from './components/SideNav'; // Import SideNav
 import UserProfile from './components/UserProfile';
 import SettingsModal from './components/SettingsModal'; // Import SettingsModal
+import SplashScreen from './components/SplashScreen';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider, useUser } from './contexts/UserContext';
 import { PwaInstallProvider } from './contexts/PwaInstallContext';
@@ -36,6 +37,7 @@ const CosmusApp: React.FC = () => {
 
   return (
     <div className="flex bg-transparent text-[var(--color-text-base)] font-mono transition-colors duration-300 h-screen">
+      <SplashScreen />
       <Tutorial />
       <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />

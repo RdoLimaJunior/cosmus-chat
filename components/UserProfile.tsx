@@ -10,7 +10,7 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
-  const { userName, avatar, missionsCompleted, rank, signOut, lastMission } = useUser();
+  const { userName, avatar, missionsCompleted, rank, missionHistory, signOut } = useUser();
   const { clearChatHistory } = useChat();
   const { clearCompletedTutorials } = useTutorial();
 
@@ -63,15 +63,25 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {lastMission && (
-            <div>
-              <h3 className="font-bold text-lg text-[var(--color-text-muted)] mb-2">Última Missão</h3>
-              <div className="bg-[var(--color-surface)] p-3 rounded-md">
-                <p className="text-sm font-semibold">{lastMission.name}</p>
-                <p className="text-xs text-[var(--color-text-muted)] mt-1">{new Date(lastMission.timestamp).toLocaleString('pt-BR')}</p>
-              </div>
-            </div>
-          )}
+          <div>
+            <h3 className="font-bold text-lg text-[var(--color-text-muted)] mb-2">Histórico de Missões</h3>
+            {missionHistory && missionHistory.length > 0 ? (
+                <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
+                    {[...missionHistory].reverse().map((mission, index) => (
+                        <div key={index} className="bg-[var(--color-surface)] p-3 rounded-md animate-ai-message" style={{ animationDelay: `${index * 50}ms` }}>
+                            <p className="text-sm font-semibold">{mission.name}</p>
+                            <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                                {new Date(mission.timestamp).toLocaleString('pt-BR')}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-[var(--color-surface)] p-3 rounded-md">
+                    <p className="text-sm text-[var(--color-text-muted)] italic">Nenhuma missão concluída ainda. Comece a explorar!</p>
+                </div>
+            )}
+          </div>
         </div>
 
         <div className="border-t border-[var(--color-border)] my-6"></div>

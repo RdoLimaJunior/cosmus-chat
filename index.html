@@ -379,6 +379,58 @@
         padding: 1rem;
         animation: zoomInFade 0.3s ease-out;
       }
+
+      /* Animações da Tela de Abertura */
+      @keyframes splash-enter-anim {
+        0% {
+          transform: scale(0.8) rotate(-15deg);
+          opacity: 0;
+          filter: drop-shadow(0 0 1px var(--color-accent));
+        }
+        50% {
+          transform: scale(1.1) rotate(5deg);
+          opacity: 1;
+          filter: drop-shadow(0 0 10px var(--color-accent));
+        }
+        100% {
+          transform: scale(1) rotate(0deg);
+          opacity: 1;
+          filter: drop-shadow(0 0 5px var(--color-accent));
+        }
+      }
+      .animate-splash-enter {
+        animation: splash-enter-anim 1.5s ease-out forwards;
+      }
+
+      @keyframes splash-text-fade-in-anim {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-splash-text-fade-in {
+        opacity: 0; /* Começa invisível */
+        animation: splash-text-fade-in-anim 0.8s ease-out 1s forwards; /* Delay de 1s para começar após o ícone */
+      }
+
+      @keyframes splash-fade-out-anim {
+        0%, 80% {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        100% {
+          opacity: 0;
+          pointer-events: none;
+        }
+      }
+      .animate-splash-fade-out {
+        /* A animação dura 3s no total. O fade out acontece nos últimos 20% (0.6s) */
+        animation: splash-fade-out-anim 3s ease-in-out forwards;
+      }
     </style>
   <script type="importmap">
 {
