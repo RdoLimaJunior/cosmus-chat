@@ -2,15 +2,14 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/webp" href="/cosmus.webp" />
+    <link rel="icon" type="image/svg+xml" href="/cosmus-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cosmus: Companheiro IA</title>
 
     <!-- PWA Tags -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0a0a19" />
-    <link rel="apple-touch-icon" href="/icon-192.png">
-
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -122,7 +121,7 @@
         border: 1px solid var(--color-border);
         color: var(--color-accent);
         padding: 0.5rem 1rem;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         text-transform: uppercase;
       }
       .spaceship-button:hover:not(:disabled), .spaceship-button:focus:not(:disabled) {
@@ -130,37 +129,55 @@
         color: var(--color-background);
         box-shadow: var(--glow-shadow);
         border-color: var(--color-accent);
+        transform: scale(1.05);
+      }
+      
+      /* Efeitos de Interação */
+      .interactive-glow-effect {
+          transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+      .interactive-glow-effect:hover:not(:disabled),
+      .interactive-glow-effect:focus:not(:disabled) {
+          transform: scale(1.1);
+          filter: drop-shadow(0 0 4px var(--color-accent));
+      }
+
+      .interactive-glow-effect-no-scale {
+          transition: filter 0.3s ease-in-out, background-color 0.3s ease-in-out;
+      }
+      .interactive-glow-effect-no-scale:hover:not(:disabled),
+      .interactive-glow-effect-no-scale:focus:not(:disabled) {
+          filter: drop-shadow(0 0 4px var(--color-accent));
+      }
+
+      /* Animação de pulso para navegação */
+      @keyframes nav-icon-pulse {
+        0%, 100% {
+          filter: drop-shadow(0 0 1px var(--color-accent));
+        }
+        50% {
+          filter: drop-shadow(0 0 4px var(--color-accent));
+        }
+      }
+      .animate-nav-pulse {
+        animation: nav-icon-pulse 3s infinite ease-in-out;
       }
       
       /* Animações de mensagem de chat */
-      @keyframes slideInFromLeft {
+      @keyframes message-zoom-in {
         from {
           opacity: 0;
-          transform: translateX(-20px) scale(0.95);
+          transform: scale(0.9);
         }
         to {
           opacity: 1;
-          transform: translateX(0) scale(1);
+          transform: scale(1);
         }
       }
-      .animate-ai-message {
-        animation: slideInFromLeft 0.5s ease-out forwards;
-      }
-      
-      @keyframes slideInFromRight {
-        from {
-          opacity: 0;
-          transform: translateX(20px) scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0) scale(1);
-        }
-      }
+      .animate-ai-message,
       .animate-user-message {
-        animation: slideInFromRight 0.5s ease-out forwards;
+        animation: message-zoom-in 0.4s ease-out forwards;
       }
-
 
       /* Animação para a janela de chat */
       @keyframes zoomInFade {
@@ -174,7 +191,7 @@
         }
       }
       .animate-chat-window {
-        animation: zoomInFade 0.6s ease-out forwards;
+        animation: zoomInFade 0.6s ease-out both;
       }
 
       /* Animação para as sugestões */
@@ -274,6 +291,21 @@
         animation: pulse-mic 1.5s infinite;
       }
 
+      /* Animação para o ícone do Cosmus em carregamento */
+      @keyframes cosmus-pulse-glow {
+        0%, 100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 3px var(--color-accent));
+        }
+        50% {
+          transform: scale(1.05);
+          filter: drop-shadow(0 0 7px var(--color-accent));
+        }
+      }
+      .animate-cosmus-pulse {
+        animation: cosmus-pulse-glow 2s infinite ease-in-out;
+      }
+
       /* Animação para o avatar do usuário quando o perfil está aberto */
       @keyframes avatar-pulse {
         0%, 100% {
@@ -304,7 +336,7 @@
         background: var(--color-primary-hover);
       }
 
-      /* Animação do Campo Estelar */
+      /* Animação do Campo Estelar (Otimizada) */
       @keyframes move-twink-back {
           from {transform: translateY(0);}
           to {transform: translateY(-100vh);}
@@ -322,6 +354,8 @@
           z-index: -1;
           background-repeat: repeat-y;
           pointer-events: none;
+          /* Otimização: avisa o navegador para otimizar as animações de transformação na GPU. */
+          will-change: transform;
       }
 
       .stars {
@@ -332,7 +366,6 @@
               radial-gradient(1px 1px at 10% 80%, var(--color-border), transparent),
               radial-gradient(1.2px 1.2px at 90% 10%, var(--color-border), transparent);
           background-size: 50vw 100vh;
-          animation: move-twink-back 240s linear infinite;
       }
 
       .stars2 {
@@ -341,7 +374,6 @@
               radial-gradient(1.8px 1.8px at 70% 20%, var(--color-border), transparent),
               radial-gradient(2.2px 2.2px at 15% 45%, var(--color-border), transparent);
           background-size: 50vw 100vh;
-          animation: move-twink-back 160s linear infinite;
       }
 
       .stars3 {
@@ -349,7 +381,20 @@
               radial-gradient(2.5px 2.5px at 5% 95%, var(--color-border), transparent),
               radial-gradient(3px 3px at 85% 55%, var(--color-border), transparent);
           background-size: 50vw 100vh;
-          animation: move-twink-back 80s linear infinite;
+      }
+
+      /* Otimização: as animações são executadas apenas se o usuário não tiver a preferência de 'movimento reduzido'. */
+      @media (prefers-reduced-motion: no-preference) {
+        .stars {
+          /* Duração aumentada para um movimento mais lento e menos intensivo */
+          animation: move-twink-back 300s linear infinite;
+        }
+        .stars2 {
+          animation: move-twink-back 200s linear infinite;
+        }
+        .stars3 {
+          animation: move-twink-back 120s linear infinite;
+        }
       }
 
       /* Estilos do Tutorial */
@@ -435,11 +480,11 @@
 <script type="importmap">
 {
   "imports": {
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^18.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^18.2.0/",
+    "react/": "https://aistudiocdn.com/react@^18.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "react-dom": "https://aistudiocdn.com/react-dom@^18.2.0",
     "vite": "https://aistudiocdn.com/vite@^7.1.6",
     "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.3"
   }

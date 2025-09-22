@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { fetchRandomNasaMedia } from '../services/nasaService';
 import { useUser } from '../contexts/UserContext';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import type { ChatMedia } from '../types';
 import LoadingSpinner from './LoadingSpinner';
-import CameraCaptureModal from './CameraCaptureModal';
+import AstronautIcon from './AstronautIcon';
+
+// O modal da câmera é pesado e usado apenas sob demanda, ideal para lazy loading.
+const CameraCaptureModal = lazy(() => import('./CameraCaptureModal'));
 
 interface WelcomeScreenProps {
   onNameSubmit: (name: string) => void;
@@ -12,7 +15,7 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
   const [media, setMedia] = useState<ChatMedia | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isMediaLoading, setIsMediaLoading] = useState(true);
   const [isHighResLoaded, setIsHighResLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [explorerName, setExplorerName] = useState('');
@@ -35,7 +38,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
   };
 
   const loadMedia = async () => {
-    setIsLoading(true);
+    setIsMediaLoading(true);
     setIsHighResLoaded(false);
     setError(null);
     try {
@@ -53,7 +56,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
     } catch (e: any) {
       setError(e.message || "Ocorreu um erro desconhecido.");
     } finally {
-      setIsLoading(false);
+      setIsMediaLoading(false);
     }
   };
 
@@ -69,45 +72,42 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
   const renderMediaBackground = () => {
     if (!media) return null;
 
-    if (media.type === 'video') {
-      return (
-        <video 
-          key={media.display}
-          src={media.display} 
-          autoPlay 
-          loop 
-          muted 
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          Seu navegador não suporta vídeos.
-        </video>
-      );
-    }
-
-    if (media.type === 'image') {
-      return (
-        <>
-          <div 
-            style={{ backgroundImage: `url(${media.preview})` }}
-            className={`w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${isHighResLoaded ? 'opacity-0' : 'opacity-100 blur-md'}`}
-            aria-hidden="true"
-          />
-          <img 
+    return (
+      <div className={`absolute inset-0 w-full h-full z-0 transition-opacity duration-1000 ease-in-out ${isMediaLoading ? 'opacity-0' : 'opacity-100'}`} aria-hidden="true">
+        {media.type === 'video' ? (
+          <video 
+            key={media.display}
             src={media.display} 
-            alt={media.title} 
-            onLoad={() => setIsHighResLoaded(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${isHighResLoaded ? 'opacity-100' : 'opacity-0'}`}
-          />
-        </>
-      );
-    }
-
-    return null;
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            Seu navegador não suporta vídeos.
+          </video>
+        ) : (
+          <>
+            <div 
+              style={{ backgroundImage: `url(${media.preview})` }}
+              className={`w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${isHighResLoaded ? 'opacity-0' : 'opacity-100 blur-md'}`}
+              aria-hidden="true"
+            />
+            <img 
+              src={media.display} 
+              alt={media.title} 
+              onLoad={() => setIsHighResLoaded(true)}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${isHighResLoaded ? 'opacity-100' : 'opacity-0'}`}
+            />
+          </>
+        )}
+        <div className="absolute inset-0 bg-[var(--color-background)]/80 backdrop-blur-sm"></div>
+      </div>
+    );
   };
 
   const renderContent = () => {
-    if (error) {
+    if (error && isMediaLoading) {
       return (
         <div className="text-center flex flex-col items-center gap-6 p-6 spaceship-panel z-10 animate-chat-window">
           <h2 className="text-2xl font-bold text-red-400">Interferência Cósmica!</h2>
@@ -121,18 +121,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
 
     return (
       <>
-        <CameraCaptureModal
-            isOpen={isCameraOpen}
-            onClose={() => setIsCameraOpen(false)}
-            onPhotoCaptured={handlePhotoCaptured}
-        />
+        <Suspense fallback={null}>
+          <CameraCaptureModal
+              isOpen={isCameraOpen}
+              onClose={() => setIsCameraOpen(false)}
+              onPhotoCaptured={handlePhotoCaptured}
+          />
+        </Suspense>
 
-        {media && (
-          <div className="absolute inset-0 w-full h-full z-0" aria-hidden="true">
-            {renderMediaBackground()}
-            <div className="absolute inset-0 bg-[var(--color-background)]/80 backdrop-blur-sm"></div>
-          </div>
-        )}
+        {renderMediaBackground()}
 
         <div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
             <div className="w-full max-w-md lg:max-w-lg spaceship-panel p-8 flex flex-col items-center gap-4 animate-chat-window">
@@ -150,7 +147,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
                   {avatar ? (
                       <img src={avatar} alt="Avatar do explorador" className="w-full h-full object-cover" />
                   ) : (
-                      <img src="/cosmus2.webp" alt="Avatar padrão de Cosmus" className="w-full h-full object-cover" />
+                      <AstronautIcon className="w-20 h-20" />
                   )}
                 </div>
                 <h1 className="text-3xl font-bold text-[var(--color-accent)] glow-text">Identifique-se, Explorador!</h1>
@@ -209,11 +206,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
                 </p>
                 <button
                     onClick={loadMedia}
-                    disabled={isLoading}
+                    disabled={isMediaLoading}
                     className="spaceship-button text-xs px-2 py-1 disabled:opacity-50 disabled:cursor-wait"
                     aria-label="Carregar nova imagem de fundo"
                 >
-                  {isLoading ? 'Carregando...' : 'Nova Mídia'}
+                  {isMediaLoading ? 'Carregando...' : 'Nova Mídia'}
                 </button>
              </div>
           </footer>
@@ -221,17 +218,17 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
       </>
     );
   };
-
+  
   const renderInitialLoader = () => (
-    <div className="text-center flex flex-col items-center gap-4 z-10">
-        <LoadingSpinner />
-        <p className="text-[var(--color-text-muted)] italic text-lg animate-pulse">Estabelecendo conexão com o cosmos...</p>
-    </div>
-  );
+     <div className="text-center flex flex-col items-center gap-4 z-10">
+         <LoadingSpinner />
+         <p className="text-[var(--color-text-muted)] italic text-lg animate-pulse">Estabelecendo conexão com o cosmos...</p>
+     </div>
+   );
 
   return (
     <main className="relative flex-grow flex items-center justify-center p-4 overflow-hidden">
-      {isLoading && !media ? renderInitialLoader() : renderContent()}
+      { (isMediaLoading && !media) ? renderInitialLoader() : renderContent() }
     </main>
   );
 };

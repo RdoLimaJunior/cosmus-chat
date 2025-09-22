@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useId } from 'react';
 import { useTutorial } from '../contexts/TutorialContext';
 import { useUser } from '../contexts/UserContext';
+import AstronautIcon from './AstronautIcon';
 
 interface SideNavProps {
   isProfileOpen: boolean;
@@ -42,14 +43,14 @@ const SideNav: React.FC<SideNavProps> = ({ isProfileOpen, onOpenProfile, onOpenS
       <div className="relative group">
         <button
           onClick={onOpenProfile}
-          className={`w-12 h-12 flex items-center justify-center rounded-full hover:bg-[var(--color-muted-surface)] transition-all duration-200 overflow-hidden ${isProfileOpen ? 'animate-avatar-pulse' : ''}`}
+          className={`w-12 h-12 flex items-center justify-center rounded-full hover:bg-[var(--color-muted-surface)] overflow-hidden bg-[var(--color-muted-surface)] ${isProfileOpen ? 'animate-avatar-pulse' : ''} interactive-glow-effect-no-scale`}
           aria-label="Ver perfil e histórico"
           aria-describedby={profileTooltipId}
         >
           {avatar ? (
-            <img src={avatar} alt="Avatar do usuário" className="w-full h-full object-cover" />
+            <img src={avatar} alt="Avatar do usuário" className="w-full h-full object-cover animate-nav-pulse" />
           ) : (
-            <img src="/cosmus2.webp" alt="Avatar padrão de Cosmus" className="w-full h-full object-cover" />
+            <AstronautIcon className="w-8 h-8 animate-nav-pulse" />
           )}
         </button>
         <div
@@ -65,11 +66,11 @@ const SideNav: React.FC<SideNavProps> = ({ isProfileOpen, onOpenProfile, onOpenS
       <div className="relative group">
         <button
           onClick={onOpenSettings}
-          className="p-3 rounded-full hover:bg-[var(--color-muted-surface)] transition-colors duration-200"
+          className="p-3 rounded-full hover:bg-[var(--color-muted-surface)] interactive-glow-effect-no-scale"
           aria-label="Configurações"
           aria-describedby={settingsTooltipId}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-accent)] animate-nav-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
@@ -88,12 +89,12 @@ const SideNav: React.FC<SideNavProps> = ({ isProfileOpen, onOpenProfile, onOpenS
         <div className="relative group">
             <button
               onClick={() => setIsHelpOpen(!isHelpOpen)}
-              className="p-3 rounded-full hover:bg-[var(--color-muted-surface)] transition-colors duration-200"
+              className="p-3 rounded-full hover:bg-[var(--color-muted-surface)] interactive-glow-effect-no-scale"
               aria-label="Ajuda"
               aria-expanded={isHelpOpen}
               aria-describedby={helpTooltipId}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-accent)] animate-nav-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>

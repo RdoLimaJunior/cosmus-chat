@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { ChatMessage } from '../types';
-import { sendMessageToAI, getInitialMessage } from '../services/geminiService';
+import { sendMessageToAI, getInitialMessage, getChat } from '../services/geminiService';
 import { fetchNasaMedia, fetchRandomNasaMedia } from '../services/nasaService';
 import { useUser } from '../contexts/UserContext';
 import { useChat } from '../contexts/ChatContext';
@@ -9,9 +9,18 @@ import Message from './Message';
 import ChatInput from './ChatInput';
 import LoadingSpinner from './LoadingSpinner';
 
+const loadingPhrases = [
+  'Consultando os mapas estelares',
+  'Ajustando a frequência de comunicação',
+  'Decodificando sinais cósmicos',
+  'Calibrando os propulsores de dobra',
+  'Navegando por um cinturão de asteroides',
+];
+
 const ChatWindow: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState('Cosmus está processando');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { userName, completeMission } = useUser();
   const { chatHistory, saveChatHistory } = useChat();
@@ -48,6 +57,10 @@ const ChatWindow: React.FC = () => {
   useEffect(() => {
     if (chatHistory && chatHistory.length > 0) {
       setMessages(chatHistory);
+      // Inicializa a sessão de chat do Gemini com o histórico existente para manter o contexto.
+      // Esta chamada configura o 'chat' singleton no serviço para que as mensagens subsequentes
+      // tenham o histórico completo.
+      getChat(userName, chatHistory);
       setIsLoading(false);
     } else {
       fetchInitialMessage();
@@ -75,6 +88,35 @@ const ChatWindow: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  // Efeito para animar o texto de carregamento com frases variadas e pontos mais rápidos
+  useEffect(() => {
+    let dotInterval: number | undefined;
+    // Usa uma ref para a frase de carregamento para que ela não mude a cada renderização durante o carregamento
+    const loadingPhrase = useRef(loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)]);
+
+    if (isLoading) {
+      let dotCount = 0;
+      // Define a frase inicial sem os pontos
+      setLoadingText(loadingPhrase.current); 
+
+      dotInterval = window.setInterval(() => {
+        dotCount = (dotCount + 1) % 4; // Cicla de 0 a 3
+        const dots = '.'.repeat(dotCount);
+        setLoadingText(`${loadingPhrase.current}${dots}`);
+      }, 300); // Acelera a animação dos pontos para 300ms
+    } else {
+      setLoadingText(''); // Limpa o texto quando não está carregando
+    }
+
+    // Limpa o intervalo na desmontagem ou quando isLoading muda
+    return () => {
+      if (dotInterval) {
+        clearInterval(dotInterval);
+      }
+    };
+  }, [isLoading]);
+
 
   const handleSendMessage = async (inputText: string) => {
     if (!inputText.trim()) return;
@@ -189,7 +231,7 @@ const ChatWindow: React.FC = () => {
         {isLoading && (
           <div className="flex justify-start items-center gap-3">
              <LoadingSpinner />
-             <p className="text-[var(--color-text-muted)] italic text-sm">Cosmus está processando...</p>
+             <p className="text-[var(--color-text-muted)] italic text-sm w-56 text-left">{loadingText}</p>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -213,12 +255,13 @@ const ChatWindow: React.FC = () => {
         
         {activeSuggestions.length > 0 && (
           <div id="suggestion-area" className="flex flex-wrap justify-center gap-2">
-            {activeSuggestions.map((suggestion) => (
+            {activeSuggestions.map((suggestion, index) => (
               <button
                 key={suggestion}
                 onClick={() => handleSendMessage(suggestion)}
                 disabled={isLoading}
-                className="spaceship-button px-3 py-1 text-sm disabled:opacity-50"
+                className="spaceship-button px-3 py-1 text-sm disabled:opacity-50 animate-suggestion"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 {suggestion}
               </button>

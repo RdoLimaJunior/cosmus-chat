@@ -36,7 +36,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
                 type="button" 
                 onClick={startListening}
                 disabled={isLoading}
-                className={`mic-button flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-[var(--color-muted-surface)] border border-[var(--color-border)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${isListening ? 'is-listening' : ''}`}
+                className={`mic-button flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-[var(--color-muted-surface)] border border-[var(--color-border)] disabled:opacity-60 disabled:cursor-not-allowed ${isListening ? 'is-listening' : ''} interactive-glow-effect`}
                 aria-label="Usar comando de voz"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -59,7 +59,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-shrink-0 w-12 h-12 bg-[var(--color-muted-surface)] text-[var(--color-accent)] flex items-center justify-center hover:bg-[var(--color-accent)] hover:text-[var(--color-background)] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-surface)] focus:ring-[var(--color-primary)]"
+          className="flex-shrink-0 w-12 h-12 bg-[var(--color-muted-surface)] text-[var(--color-accent)] flex items-center justify-center hover:bg-[var(--color-accent)] hover:text-[var(--color-background)] disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-surface)] focus:ring-[var(--color-primary)] interactive-glow-effect"
           aria-label="Enviar mensagem"
         >
           {isLoading ? (

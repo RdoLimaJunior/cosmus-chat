@@ -3,6 +3,7 @@ import Modal from './Modal';
 import { useUser } from '../contexts/UserContext';
 import { useChat } from '../contexts/ChatContext';
 import { useTutorial } from '../contexts/TutorialContext';
+import AstronautIcon from './AstronautIcon';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -41,11 +42,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ isOpen, onClose }) => {
         </button>
 
         <div className="flex flex-col items-center gap-4">
-          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-[var(--color-muted-surface)] border-2 border-[var(--color-border)]">
+          <div className="relative w-24 h-24 rounded-full overflow-hidden bg-[var(--color-muted-surface)] border-2 border-[var(--color-border)] flex items-center justify-center">
             {avatar ? (
               <img src={avatar} alt="Avatar do usuário" className="w-full h-full object-cover" />
             ) : (
-              <img src="/cosmus2.webp" alt="Avatar padrão" className="w-full h-full object-cover" />
+              <AstronautIcon className="w-16 h-16" />
             )}
           </div>
           <h2 id="user-profile-title" className="text-2xl font-bold text-[var(--color-accent)] glow-text">{userName || 'Explorador Anônimo'}</h2>

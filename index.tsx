@@ -15,7 +15,6 @@ root.render(
 );
 
 // Registra o Service Worker para habilitar a funcionalidade PWA/offline
-/* // Temporariamente desabilitado para garantir o deploy. Será reativado com uma estratégia de cache correta.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Usa um caminho absoluto simples e define o escopo explicitamente como '/'.
@@ -30,4 +29,3 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
-*/
