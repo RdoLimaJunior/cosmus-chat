@@ -48,8 +48,8 @@ const CosmusApp: React.FC = () => {
       <SplashScreen />
       <Tutorial />
       <Suspense fallback={<LoadingFallback />}>
-        {isProfileOpen && <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />}
-        {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}
+        <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       </Suspense>
       
       {missionToast && <MissionToast key={missionToast.key} missionName={missionToast.name} />}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, ReactNode, useCallback } from 'react';
+import React, { useEffect, useRef, ReactNode, useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 interface ModalProps {
@@ -12,15 +12,28 @@ const modalRoot = document.getElementById('modal-root');
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const [isMounted, setIsMounted] = useState(isOpen);
+
+  // Gerencia a montagem/desmontagem com um atraso para as animações de saída
+  useEffect(() => {
+    if (isOpen && !isMounted) {
+      setIsMounted(true);
+    } else if (!isOpen && isMounted) {
+      const timer = setTimeout(() => setIsMounted(false), 300); // Deve corresponder à duração da animação
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isMounted]);
 
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
 
+  // Captura de foco e manipulação de eventos de teclado
   useEffect(() => {
-    if (isOpen) {
+    if (isMounted && isOpen) { // Quando o modal se torna totalmente visível
       previousFocusRef.current = document.activeElement as HTMLElement;
-      
+      document.body.style.overflow = 'hidden';
+
       const modalElement = modalRef.current;
       if (!modalElement) return;
 
@@ -44,12 +57,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         }
 
         if (event.key === 'Tab' && firstFocusableElement && lastFocusableElement) {
-          if (event.shiftKey) { // Shift + Tab
+          if (event.shiftKey) {
             if (document.activeElement === firstFocusableElement) {
               lastFocusableElement.focus();
               event.preventDefault();
             }
-          } else { // Tab
+          } else {
             if (document.activeElement === lastFocusableElement) {
               firstFocusableElement.focus();
               event.preventDefault();
@@ -59,7 +72,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       };
       
       document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
 
       return () => {
         document.removeEventListener('keydown', handleKeyDown);
@@ -67,22 +79,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         previousFocusRef.current?.focus();
       };
     }
-  }, [isOpen, handleClose]);
+  }, [isMounted, isOpen, handleClose]);
 
-  if (!isOpen || !modalRoot) {
+  if (!isMounted || !modalRoot) {
     return null;
   }
+
+  const backdropClass = isOpen ? 'animate-modal-fade-in' : 'animate-modal-fade-out';
+  const contentClass = isOpen ? 'animate-modal-zoom-in' : 'animate-modal-zoom-out';
   
   return ReactDOM.createPortal(
     <div 
-      className="fixed inset-0 bg-[var(--color-background)]/80 flex items-center justify-center z-50 animate-modal-fade-in"
+      className={`fixed inset-0 bg-[var(--color-background)]/80 flex items-center justify-center z-50 ${backdropClass}`}
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
       role="dialog"
       aria-modal="true"
     >
       <div 
         ref={modalRef} 
-        className="animate-modal-zoom-in"
+        className={contentClass}
         tabIndex={-1}
       >
         {children}
