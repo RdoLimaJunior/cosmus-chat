@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, ReactNode, useCallback, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
   isOpen: boolean;
@@ -88,7 +88,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   const backdropClass = isOpen ? 'animate-modal-fade-in' : 'animate-modal-fade-out';
   const contentClass = isOpen ? 'animate-modal-zoom-in' : 'animate-modal-zoom-out';
   
-  return ReactDOM.createPortal(
+  return createPortal(
     <div 
       className={`fixed inset-0 bg-[var(--color-background)]/80 flex items-center justify-center z-50 ${backdropClass}`}
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
