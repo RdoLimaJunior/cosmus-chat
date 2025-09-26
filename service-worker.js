@@ -3,7 +3,6 @@ const CACHE_NAME = 'cosmus-pwa-cache-v1';
 // Estes arquivos devem existir na pasta 'public' para serem copiados para a raiz do build.
 const urlsToCache = [
   '/',
-  '/index.html',
   '/manifest.json',
   '/cosmus-icon.svg'
 ];
