@@ -91,12 +91,15 @@ const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({ isOpen, onClose
         </div>
       );
     }
-    
+
     if (capturedImage) {
       return (
         <div className="relative">
-          {/* Adiciona o espelhamento à pré-visualização da imagem capturada para corresponder ao feed de vídeo */}
-          <img src={capturedImage} alt="Captura do avatar" className="max-w-full max-h-[80vh] rounded-md transform -scale-x-100" />
+          <img
+            src={capturedImage}
+            alt="Captura do avatar"
+            className="max-w-full max-h-[80vh] rounded-md transform -scale-x-100"
+          />
           <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-4 flex justify-center gap-4">
             <button onClick={handleRetake} className="spaceship-button">Tirar Outra</button>
             <button onClick={handleUsePhoto} className="spaceship-button">Usar Foto</button>
@@ -106,12 +109,18 @@ const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({ isOpen, onClose
     }
 
     return (
-        <div className="relative">
-            <video ref={videoRef} autoPlay playsInline muted className="max-w-full max-h-[80vh] rounded-md transform -scale-x-100" />
-            <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-4 flex justify-center">
-                <button onClick={handleCapture} className="spaceship-button px-6 py-3">Capturar</button>
-            </div>
+      <div className="relative">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="max-w-full max-h-[80vh] rounded-md transform -scale-x-100"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-4 flex justify-center">
+          <button onClick={handleCapture} className="spaceship-button px-6 py-3">Capturar</button>
         </div>
+      </div>
     );
   };
 
