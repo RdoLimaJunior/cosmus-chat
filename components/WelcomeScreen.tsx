@@ -199,9 +199,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNameSubmit }) => {
               </button>
 
               <button type="submit" className="mt-6 px-8 py-4 spaceship-button text-lg uppercase font-bold" aria-label="Iniciar exploração">
-              <button type="submit" className="mt-6 px-8 py-4 spaceship-button text-lg uppercase font-bold">
                 Iniciar Exploração
               </button>
+            </form>
           </div>
         </div>
 
