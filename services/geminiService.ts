@@ -2,9 +2,9 @@
 import { GoogleGenAI, Chat, GenerateContentResponse, Content } from "@google/genai";
 import type { ChatMessage } from '../types';
 
-// Em um ambiente Vite, as variáveis de ambiente expostas ao cliente devem começar com VITE_
-// Esta variável deve ser configurada nas configurações de build do seu provedor de hospedagem (ex: Netlify).
-const API_KEY = import.meta.env.VITE_API_KEY;
+// This is a placeholder. In a real environment, the API key would be set.
+// For this example, we will mock the response if the key is not present.
+const API_KEY = process.env.API_KEY;
 
 let ai: GoogleGenAI | null = null;
 if (API_KEY) {
@@ -232,7 +232,7 @@ export const getInitialMessage = async (): Promise<Omit<AIResponse, 'imageQuery'
     // FIX: Explicitly typed `response` to `GenerateContentResponse` to resolve the error on the following line.
     const response: GenerateContentResponse = await withRetry(apiCall);
 
-    const rawText = response.text();
+    const rawText = response.text;
     const { displayText, suggestions } = parseAIResponse(rawText);
     
     return { text: displayText.trim(), suggestions };
@@ -293,7 +293,7 @@ export const sendMessageToAI = async (message: string, userName: string | null):
     const apiCall = () => chatSession.sendMessage({ message });
     // FIX: Explicitly typed `response` to `GenerateContentResponse` to resolve the error on the following line.
     const response: GenerateContentResponse = await withRetry(apiCall);
-    const rawText = response.text();
+    const rawText = response.text;
     const { displayText, suggestions, imageQuery, source, missionCompleted, challenge } = parseAIResponse(rawText);
     return { text: displayText.trim(), suggestions, imageQuery, source, missionCompleted, challenge };
 

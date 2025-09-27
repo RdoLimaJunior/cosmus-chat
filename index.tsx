@@ -15,17 +15,50 @@ root.render(
 );
 
 // Registra o Service Worker para habilitar a funcionalidade PWA/offline
-if ('serviceWorker' in navigator) {
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Usa um caminho absoluto simples e define o escopo explicitamente como '/'.
-    // Isso é mais robusto do que construir a URL e resolve ambiguidades
-    // em ambientes de hospedagem complexos que poderiam causar o erro de 'origem'.
-    navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+    // Desativa o Service Worker em domínios de preview para evitar erros de origem cruzada.
+    const isPreview = window.location.origin.includes("usercontent.goog");
+    if (isPreview) {
+      console.log("⚠️ Service Worker desativado no ambiente de preview.");
+      // Tenta desregistrar qualquer SW antigo que possa ter sido registrado incorretamente.
+      // Em ambientes sandboxed (como o AI Studio), esta operação pode falhar, e isso é esperado.
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+          console.log(`Service Worker com escopo ${registration.scope} desregistrado.`);
+        }
+      }).catch(function() {
+          // Ignora intencionalmente o erro. Falhar ao desregistrar não é crítico aqui.
+      });
+      return;
+    }
+
+    const expectedOrigin = window.location.origin;
+
+    // Usar um caminho relativo é crucial para ambientes que podem reescrever o host.
+    navigator.serviceWorker.register('service-worker.js', { scope: '/' })
       .then(registration => {
-        console.log('ServiceWorker registrado com sucesso com o escopo: ', registration.scope);
+        // Uma registro pode ter sucesso mesmo que a scriptURL tenha uma origem diferente.
+        // Precisamos verificar a origem do script do worker para segurança.
+        // Esta é uma verificação defensiva contra ambientes complexos de proxy/hospedagem.
+        const worker = registration.installing || registration.waiting || registration.active;
+        if (worker) {
+          const scriptOrigin = new URL(worker.scriptURL).origin;
+          if (scriptOrigin !== expectedOrigin) {
+            console.warn(
+              `⚠️ ServiceWorker com origem incorreta detectado (${scriptOrigin}). Desregistrando...`
+            );
+            registration.unregister();
+          } else {
+            console.log('✅ ServiceWorker registrado com sucesso com o escopo: ', registration.scope);
+          }
+        } else {
+             console.log('ServiceWorker registrado, aguardando ativação para verificar a origem.');
+        }
       })
       .catch(error => {
-        console.log('Falha no registro do ServiceWorker: ', error);
+        console.error('❌ Falha no registro do ServiceWorker: ', error);
       });
   });
 }
